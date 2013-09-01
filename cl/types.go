@@ -1,6 +1,6 @@
 package cl
 
-// #include <OpenCL/opencl.h>
+// #include <CL/opencl.h>
 import "C"
 
 import (
@@ -262,39 +262,39 @@ func (mf MapFlag) toCl() C.cl_map_flags {
 type ChannelOrder int
 
 const (
-	ChannelOrderR            ChannelOrder = C.CL_R
-	ChannelOrderA            ChannelOrder = C.CL_A
-	ChannelOrderRG           ChannelOrder = C.CL_RG
-	ChannelOrderRA           ChannelOrder = C.CL_RA
-	ChannelOrderRGB          ChannelOrder = C.CL_RGB
-	ChannelOrderRGBA         ChannelOrder = C.CL_RGBA
-	ChannelOrderBGRA         ChannelOrder = C.CL_BGRA
-	ChannelOrderARGB         ChannelOrder = C.CL_ARGB
-	ChannelOrderIntensity    ChannelOrder = C.CL_INTENSITY
-	ChannelOrderLuminance    ChannelOrder = C.CL_LUMINANCE
-	ChannelOrderRx           ChannelOrder = C.CL_Rx
-	ChannelOrderRGx          ChannelOrder = C.CL_RGx
-	ChannelOrderRGBx         ChannelOrder = C.CL_RGBx
-	ChannelOrderDepth        ChannelOrder = C.CL_DEPTH
-	ChannelOrderDepthStencil ChannelOrder = C.CL_DEPTH_STENCIL
+	ChannelOrderR         ChannelOrder = C.CL_R
+	ChannelOrderA         ChannelOrder = C.CL_A
+	ChannelOrderRG        ChannelOrder = C.CL_RG
+	ChannelOrderRA        ChannelOrder = C.CL_RA
+	ChannelOrderRGB       ChannelOrder = C.CL_RGB
+	ChannelOrderRGBA      ChannelOrder = C.CL_RGBA
+	ChannelOrderBGRA      ChannelOrder = C.CL_BGRA
+	ChannelOrderARGB      ChannelOrder = C.CL_ARGB
+	ChannelOrderIntensity ChannelOrder = C.CL_INTENSITY
+	ChannelOrderLuminance ChannelOrder = C.CL_LUMINANCE
+	ChannelOrderRx        ChannelOrder = C.CL_Rx
+	ChannelOrderRGx       ChannelOrder = C.CL_RGx
+	ChannelOrderRGBx      ChannelOrder = C.CL_RGBx
+	// ChannelOrderDepth        ChannelOrder = C.CL_DEPTH
+	// ChannelOrderDepthStencil ChannelOrder = C.CL_DEPTH_STENCIL
 )
 
 var channelOrderNameMap = map[ChannelOrder]string{
-	ChannelOrderR:            "R",
-	ChannelOrderA:            "A",
-	ChannelOrderRG:           "RG",
-	ChannelOrderRA:           "RA",
-	ChannelOrderRGB:          "RGB",
-	ChannelOrderRGBA:         "RGBA",
-	ChannelOrderBGRA:         "BGRA",
-	ChannelOrderARGB:         "ARGB",
-	ChannelOrderIntensity:    "Intensity",
-	ChannelOrderLuminance:    "Luminance",
-	ChannelOrderRx:           "Rx",
-	ChannelOrderRGx:          "RGx",
-	ChannelOrderRGBx:         "RGBx",
-	ChannelOrderDepth:        "Depth",
-	ChannelOrderDepthStencil: "DepthStencil",
+	ChannelOrderR:         "R",
+	ChannelOrderA:         "A",
+	ChannelOrderRG:        "RG",
+	ChannelOrderRA:        "RA",
+	ChannelOrderRGB:       "RGB",
+	ChannelOrderRGBA:      "RGBA",
+	ChannelOrderBGRA:      "BGRA",
+	ChannelOrderARGB:      "ARGB",
+	ChannelOrderIntensity: "Intensity",
+	ChannelOrderLuminance: "Luminance",
+	ChannelOrderRx:        "Rx",
+	ChannelOrderRGx:       "RGx",
+	ChannelOrderRGBx:      "RGBx",
+	// ChannelOrderDepth:        "Depth",
+	// ChannelOrderDepthStencil: "DepthStencil",
 }
 
 func (co ChannelOrder) String() string {
@@ -323,7 +323,7 @@ const (
 	ChannelDataTypeUnsignedInt32  ChannelDataType = C.CL_UNSIGNED_INT32
 	ChannelDataTypeHalfFloat      ChannelDataType = C.CL_HALF_FLOAT
 	ChannelDataTypeFloat          ChannelDataType = C.CL_FLOAT
-	ChannelDataTypeUNormInt24     ChannelDataType = C.CL_UNORM_INT24
+	// ChannelDataTypeUNormInt24     ChannelDataType = C.CL_UNORM_INT24
 )
 
 var channelDataTypeNameMap = map[ChannelDataType]string{
@@ -342,7 +342,7 @@ var channelDataTypeNameMap = map[ChannelDataType]string{
 	ChannelDataTypeUnsignedInt32:  "UnsignedInt32",
 	ChannelDataTypeHalfFloat:      "HalfFloat",
 	ChannelDataTypeFloat:          "Float",
-	ChannelDataTypeUNormInt24:     "UNormInt24",
+	// ChannelDataTypeUNormInt24:     "UNormInt24",
 }
 
 func (ct ChannelDataType) String() string {
