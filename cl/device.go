@@ -122,13 +122,13 @@ func (d *Device) nullableId() C.cl_device_id {
 func (d *Device) getInfoString(param C.cl_device_info, panicOnError bool) (string, error) {
 	var strC [1024]C.char
 	var strN C.size_t
-	if err := C.clGetDeviceInfo(d.id, param, 1024, unsafe.Pointer(&strC), &strN); err != C.CL_SUCCESS {
+	if err := C.clGetDeviceInfo(d.id, param, 1024, unsafe.Pointer(&strC), &strN); err != C.CL_SUCCESS || strN < 1 {
 		if panicOnError {
 			panic("Should never fail")
 		}
 		return "", toError(err)
 	}
-	return C.GoStringN((*C.char)(unsafe.Pointer(&strC)), C.int(strN)), nil
+	return C.GoStringN((*C.char)(unsafe.Pointer(&strC)), C.int(strN-1)), nil
 }
 
 func (d *Device) getInfoUint(param C.cl_device_info, panicOnError bool) (uint, error) {
