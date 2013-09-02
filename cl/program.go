@@ -39,24 +39,24 @@ func (p *Program) BuildProgram(devices []*Device, options string) error {
 	}
 	var deviceList []C.cl_device_id
 	var deviceListPtr *C.cl_device_id
-	numDevices := C.cl_uint(0)
 	if devices != nil && len(devices) > 0 {
 		deviceList = buildDeviceIdList(devices)
 		deviceListPtr = &deviceList[0]
 	}
+	numDevices := C.cl_uint(len(deviceList))
+
 	if err := C.clBuildProgram(p.clProgram, numDevices, deviceListPtr, cOptions, nil, nil); err != C.CL_SUCCESS {
-		buffer := make([]byte, 4096)
+		if err != C.CL_BUILD_PROGRAM_FAILURE {
+			return toError(err)
+		}
 		var bLen C.size_t
 		var err C.cl_int
-		for i := 2; i >= 0; i-- {
-			err = C.clGetProgramBuildInfo(p.clProgram, p.devices[0].id, C.CL_PROGRAM_BUILD_LOG, C.size_t(len(buffer)), unsafe.Pointer(&buffer[0]), &bLen)
-			if err == C.CL_INVALID_VALUE && i > 0 && bLen < 1024*1024 {
-				// INVALID_VALUE probably means our buffer isn't large enough
-				buffer = make([]byte, bLen)
-			} else {
-				break
-			}
+		err = C.clGetProgramBuildInfo(p.clProgram, p.devices[0].id, C.CL_PROGRAM_BUILD_LOG, 0, nil, &bLen)
+		if err != C.CL_SUCCESS {
+			return toError(err)
 		}
+		buffer := make([]byte, bLen)
+		err = C.clGetProgramBuildInfo(p.clProgram, p.devices[0].id, C.CL_PROGRAM_BUILD_LOG, C.size_t(len(buffer)), unsafe.Pointer(&buffer[0]), &bLen)
 		if err != C.CL_SUCCESS {
 			return toError(err)
 		}
