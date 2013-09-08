@@ -117,6 +117,12 @@ func (q *CommandQueue) EnqueueReadBufferFloat32(buffer *MemObject, blocking bool
 	return q.EnqueueReadBuffer(buffer, blocking, offset, dataSize, dataPtr, eventWaitList)
 }
 
+func (q *CommandQueue) EnqueueReadBufferUint8(buffer *MemObject, blocking bool, offset int, data []uint8, eventWaitList []*Event) (*Event, error) {
+	dataPtr := unsafe.Pointer(&data[0])
+	dataSize := int(unsafe.Sizeof(data[0])) * len(data)
+	return q.EnqueueReadBuffer(buffer, blocking, offset, dataSize, dataPtr, eventWaitList)
+}
+
 // Enqueues a command to fill a buffer object with a pattern of a given pattern size.
 func (q *CommandQueue) EnqueueFillBuffer(buffer *MemObject, pattern unsafe.Pointer, patternSize, offset, size int, eventWaitList []*Event) (*Event, error) {
 	var event C.cl_event
