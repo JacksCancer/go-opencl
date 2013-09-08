@@ -60,7 +60,7 @@ func (p *Program) BuildProgram(devices []*Device, options string) error {
 		if err != C.CL_SUCCESS {
 			return toError(err)
 		}
-		return BuildError(string(buffer[:bLen]))
+		return BuildError(string(buffer[:bLen-1]))
 	}
 	return nil
 }
