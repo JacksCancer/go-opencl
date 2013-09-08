@@ -1,5 +1,6 @@
 package cl
 
+// #cgo CFLAGS: -DCL_USE_DEPRECATED_OPENCL_1_1_APIS -Wno-error=cpp
 // #include <CL/opencl.h>
 import "C"
 
@@ -140,6 +141,33 @@ func (ctx *Context) CreateImage(flags MemFlag, imageFormat ImageFormat, imageDes
 	}
 	var err C.cl_int
 	clBuffer := C.clCreateImage(ctx.clContext, C.cl_mem_flags(flags), &format, &desc, dataPtr, &err)
+
+	if err == C.CL_INVALID_OPERATION {
+		// retry with deprecated functions
+		switch imageDesc.Type {
+		case MemObjectTypeImage2D:
+			clBuffer = C.clCreateImage2D(ctx.clContext, C.cl_mem_flags(flags), &format,
+				C.size_t(imageDesc.Width), C.size_t(imageDesc.Height), C.size_t(imageDesc.RowPitch), dataPtr, &err)
+		}
+	}
+
+	if err != C.CL_SUCCESS {
+		return nil, toError(err)
+	}
+	if clBuffer == nil {
+		return nil, ErrUnknown
+	}
+	return newMemObject(clBuffer, len(data)), nil
+}
+
+func (ctx *Context) CreateImage2D(flags MemFlag, imageFormat ImageFormat, width, height, rowPitch int, data []byte) (*MemObject, error) {
+	format := imageFormat.toCl()
+	var dataPtr unsafe.Pointer
+	if data != nil {
+		dataPtr = unsafe.Pointer(&data[0])
+	}
+	var err C.cl_int
+	clBuffer := C.clCreateImage2D(ctx.clContext, C.cl_mem_flags(flags), &format, C.size_t(width), C.size_t(height), C.size_t(rowPitch), dataPtr, &err)
 	if err != C.CL_SUCCESS {
 		return nil, toError(err)
 	}
@@ -157,6 +185,36 @@ func (ctx *Context) CreateImageSimple(flags MemFlag, width, height int, channelO
 		Height: height,
 	}
 	return ctx.CreateImage(flags, format, desc, data)
+}
+
+func (ctx *Context) CreateImage2DFromImage(flags MemFlag, img image.Image) (*MemObject, error) {
+	switch m := img.(type) {
+	case *image.Gray:
+		format := ImageFormat{ChannelOrderIntensity, ChannelDataTypeUNormInt8}
+		return ctx.CreateImage2D(flags, format, m.Bounds().Dx(), m.Bounds().Dy(), m.Stride, m.Pix)
+	case *image.RGBA:
+		format := ImageFormat{ChannelOrderRGBA, ChannelDataTypeUNormInt8}
+		return ctx.CreateImage2D(flags, format, m.Bounds().Dx(), m.Bounds().Dy(), m.Stride, m.Pix)
+	}
+
+	b := img.Bounds()
+	w := b.Dx()
+	h := b.Dy()
+	data := make([]byte, w*h*4)
+	dataOffset := 0
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			c := img.At(x+b.Min.X, y+b.Min.Y)
+			r, g, b, a := c.RGBA()
+			data[dataOffset] = uint8(r >> 8)
+			data[dataOffset+1] = uint8(g >> 8)
+			data[dataOffset+2] = uint8(b >> 8)
+			data[dataOffset+3] = uint8(a >> 8)
+			dataOffset += 4
+		}
+	}
+	format := ImageFormat{ChannelOrderRGBA, ChannelDataTypeUNormInt8}
+	return ctx.CreateImage2D(flags, format, w, h, 0, data)
 }
 
 func (ctx *Context) CreateImageFromImage(flags MemFlag, img image.Image) (*MemObject, error) {
